@@ -1,18 +1,17 @@
 {
-  "name": "cerdin-bot-carrera-sucia",
-  "version": "1.0.0",
-  "description": "Bot WhatsApp para Carrera Sucia con Claude AI - Meta Business API",
+  "name": "bot-carrera-sucia",
+  "version": "2.0.0",
+  "description": "Cerdín - Bot WhatsApp para Carrera Sucia (Meta Cloud API + Claude AI)",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node --watch index.js"
+    "start": "node index.js"
   },
-  "keywords": ["whatsapp", "bot", "carrera-sucia", "claude", "meta-api"],
-  "author": "Nico",
-  "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2"
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
   }
 }
