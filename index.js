@@ -1,5 +1,6 @@
 const express = require('express');
 const Anthropic = require('@anthropic-ai/sdk');
+const path = require('path');
 
 const app = express();
 app.use(express.json());
@@ -24,7 +25,11 @@ function guardarMensaje(telefono, rol, contenido) {
     if (!conversaciones[telefono]) {
         conversaciones[telefono] = [];
     }
-    conversaciones[telefono].push({ role: rol, content: contenido });
+    conversaciones[telefono].push({
+        role: rol,
+        content: contenido,
+        timestamp: new Date().toISOString()
+    });
     if (conversaciones[telefono].length > 50) {
         conversaciones[telefono] = conversaciones[telefono].slice(-50);
     }
@@ -81,7 +86,8 @@ Si no sabés algo, decí que no tenés esa info y sugerí escribir a info@carrer
 
 async function consultarClaude(telefono, mensajeUsuario) {
     const historial = obtenerHistorial(telefono, 10);
-    const mensajes = [...historial, { role: 'user', content: mensajeUsuario }];
+    const mensajes = historial.map(m => ({ role: m.role, content: m.content }));
+    mensajes.push({ role: 'user', content: mensajeUsuario });
 
     try {
         const response = await anthropic.messages.create({
@@ -148,7 +154,6 @@ app.get('/webhook', (req, res) => {
 
 // Receive messages (POST)
 app.post('/webhook', async (req, res) => {
-    // Responder 200 inmediatamente para que Meta no reintente
     res.sendStatus(200);
 
     try {
@@ -165,7 +170,6 @@ app.post('/webhook', async (req, res) => {
         const message = value.messages[0];
         const from = message.from;
 
-        // Solo procesar mensajes de texto
         if (message.type !== 'text') {
             await enviarMensajeWhatsApp(from, '¡Hola! Por ahora solo puedo leer mensajes de texto 🐷 Escribime tu consulta y te ayudo. Oink!');
             return;
@@ -174,7 +178,6 @@ app.post('/webhook', async (req, res) => {
         const texto = message.text.body;
         console.log(`📩 Mensaje de ${from}: ${texto.substring(0, 80)}`);
 
-        // Consultar Claude y responder
         const respuesta = await consultarClaude(from, texto);
         await enviarMensajeWhatsApp(from, respuesta);
 
@@ -183,9 +186,44 @@ app.post('/webhook', async (req, res) => {
     }
 });
 
+// =============================================
+// DASHBOARD - Ver conversaciones del bot
+// =============================================
+
+// API: devuelve todas las conversaciones en JSON
+app.get('/api/conversaciones', (req, res) => {
+    res.json(conversaciones);
+});
+
+// API: stats rápidas
+app.get('/api/stats', (req, res) => {
+    const totalConvos = Object.keys(conversaciones).length;
+    let totalMsgs = 0;
+    let totalUserMsgs = 0;
+
+    Object.values(conversaciones).forEach(msgs => {
+        totalMsgs += msgs.length;
+        totalUserMsgs += msgs.filter(m => m.role === 'user').length;
+    });
+
+    res.json({
+        conversaciones: totalConvos,
+        mensajes_total: totalMsgs,
+        mensajes_clientes: totalUserMsgs,
+        mensajes_bot: totalMsgs - totalUserMsgs,
+        bot_activo: true,
+        ultima_actualizacion: new Date().toISOString()
+    });
+});
+
+// Dashboard HTML
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
+
 // Health check
 app.get('/', (req, res) => {
-    res.send('🐷 CERDÍN - Bot Carrera Sucia - Activo');
+    res.send('🐷 CERDÍN - Bot Carrera Sucia - Activo | <a href="/dashboard">Ver Dashboard</a>');
 });
 
 // Iniciar servidor
@@ -196,6 +234,7 @@ app.listen(PORT, () => {
     console.log(`✅ Servidor corriendo en puerto ${PORT}`);
     console.log(`📱 Phone Number ID: ${PHONE_NUMBER_ID}`);
     console.log(`🤖 Claude AI: Activo`);
+    console.log(`📊 Dashboard: /dashboard`);
     console.log(`🔑 Token Meta: ${WHATSAPP_TOKEN ? '✅ Configurado' : '❌ FALTA'}`);
     console.log(`🔑 Token Claude: ${ANTHROPIC_API_KEY ? '✅ Configurado' : '❌ FALTA'}`);
     console.log('');
