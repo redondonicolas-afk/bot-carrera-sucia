@@ -96,6 +96,8 @@ FECHA: ${fechaHoy} | FALTAN: ${diasFaltantes} días
 
 PRÓXIMA CARRERA - 29 MARZO 2026:
 - Lugar: Escobar, Provincia de Buenos Aires
+- Dirección exacta: Florencio Parravicini y Juan Mermoz, Escobar
+- Google Maps: https://maps.app.goo.gl/LT6JKXearZMnaT2v8
 - Adultos: 5K con +20 obstáculos
 - KIDS: 1.5K con 6 obstáculos (5-12 años)
 
@@ -105,25 +107,61 @@ HORARIOS:
 - KIDS: 10:30 y 13:30
 
 PRECIOS 2026:
-EARLY BIRD (hasta 9 marzo):
-- Sin remera: $54,000
-- Con remera: $68,000
-
-NORMAL:
+INDIVIDUAL:
 - Sin remera: $65,000
-- Con remera: $79,000
+- Remera: $14,000 (se compra aparte durante el proceso de inscripción en la web)
 
-KIDS: $32,000 (early) / $37,000 (normal)
-ELITE: +$5,000
+GRUPAL (equipo de 4 personas):
+- Sin remera: $216,000 por el grupo (equivale a $54,000 por persona)
+- Remera: $14,000 por persona (se compra aparte durante la inscripción)
+
+KIDS (5-12 años):
+- $32,000 (siempre incluye remera)
+
+ELITE (competitiva, cronometrada):
+- $70,000 sin remera
+- Remera: $14,000 aparte
+
+NOTA IMPORTANTE SOBRE LA REMERA: La remera NO está incluida en el precio de inscripción (excepto KIDS que siempre la incluye). Se compra aparte por $14,000 durante el proceso de inscripción en la página web.
 
 INSCRIPCIÓN: www.carrerasucia.com.ar
 - Cupos limitados
 - Cierre: 23 marzo
+- Forma de pago: Pago electrónico en la web
+- Plazo para pagar: 2 días después de pre-inscribirse (luego el sistema elimina automáticamente)
 
-CONTACTO: info@carrerasucia.com
+QUÉ INCLUYE LA INSCRIPCIÓN:
+- Derecho de participación
+- Número tyveck
+- Medalla finisher
+- Hidratación
+- Uso de baños, duchas exteriores, carpas vestuario y guardarropas
+- Estacionamiento GRATIS
+
+POLÍTICA DE DEVOLUCIÓN Y TRANSFERENCIA:
+- No hay devolución
+- Se puede transferir a otra persona hasta 20 días antes (costo: $6,000)
+- Cambios solo dentro de misma categoría/horario, solicitar a corredor@carrerasucia.com
+
+SERVICIOS EN EL PREDIO:
+- Duchas exteriores
+- Carpas vestuario
+- Guardarropa sin cargo
+- Estacionamiento gratis
+
+FOTOS DE EDICIONES ANTERIORES:
+- En las historias destacadas de Instagram @carrerasucia
+
+CÓMO LLEGAR:
+- En el perfil de Instagram está la ubicación del predio
+- En historias destacadas hay un mapa de cómo llegar
+
+CONTACTO: corredor@carrerasucia.com
 Instagram: @carrerasucia
+Facebook: @carrerasucia
+TikTok: @carrerasucia
 
-Si no sabés algo, decí que no tenés esa info y sugerí escribir a info@carrerasucia.com.`;
+Si no sabés algo, decí que no tenés esa info y sugerí escribir a corredor@carrerasucia.com.`;
 }
 
 async function consultarClaude(telefono, mensajeUsuario) {
@@ -145,7 +183,7 @@ async function consultarClaude(telefono, mensajeUsuario) {
         return respuesta;
     } catch (error) {
         console.error('❌ Error Claude:', error.message);
-        return '¡Uy! Tuve un problemita técnico. Intentá de nuevo en unos segundos o escribí a info@carrerasucia.com 🐷';
+        return '¡Uy! Tuve un problemita técnico. Intentá de nuevo en unos segundos o escribí a corredor@carrerasucia.com 🐷';
     }
 }
 
