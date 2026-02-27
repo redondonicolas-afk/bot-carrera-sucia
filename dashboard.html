@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CERDÍN Dashboard - Carrera Sucia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mud: #3D2B1F;
+            --mud-light: #5C3D2E;
+            --pig-pink: #FF6B9D;
+            --pig-hot: #FF2D6B;
+            --cream: #FFF8F0;
+            --dirt: #8B6914;
+            --grass: #4CAF50;
+            --grass-dark: #2E7D32;
+            --gray-100: #F5F0EB;
+            --gray-200: #E8E0D8;
+            --gray-300: #D4C9BE;
+            --shadow: rgba(61, 43, 31, 0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--mud);
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        .header {
+            background: var(--mud);
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h1 {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 22px;
+            letter-spacing: -0.5px;
+        }
+
+        .header h1 span { color: var(--pig-pink); }
+
+        .header-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-badge {
+            background: var(--mud-light);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .stat-badge strong { color: var(--pig-pink); }
+
+        .live-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--grass);
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* REFRESH BTN */
+        .refresh-btn {
+            background: var(--pig-hot);
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover { background: var(--pig-pink); transform: scale(1.05); }
+
+        /* LAYOUT */
+        .container {
+            display: flex;
+            height: calc(100vh - 62px);
+        }
+
+        /* SIDEBAR - LISTA CONVERSACIONES */
+        .sidebar {
+            width: 360px;
+            min-width: 360px;
+            background: white;
+            border-right: 1px solid var(--gray-200);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .search-bar {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid var(--gray-200);
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-bar input:focus { border-color: var(--pig-pink); }
+        .search-bar input::placeholder { color: var(--gray-300); }
+
+        .conv-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .conv-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--gray-100);
+            cursor: pointer;
+            transition: background 0.15s;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .conv-item:hover { background: var(--gray-100); }
+        .conv-item.active { background: #FFF0F5; border-left: 3px solid var(--pig-hot); }
+
+        .conv-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--mud);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .conv-info { flex: 1; min-width: 0; }
+
+        .conv-info .phone {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .conv-info .preview {
+            font-size: 13px;
+            color: #888;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conv-meta {
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .conv-meta .time {
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        .conv-meta .msg-count {
+            background: var(--pig-hot);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 10px;
+            margin-top: 4px;
+            display: inline-block;
+        }
+
+        /* CHAT PANEL */
+        .chat-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #FAF6F2;
+        }
+
+        .chat-header {
+            padding: 14px 20px;
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-header .phone-big {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .chat-header .msg-total {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .msg-bubble {
+            max-width: 70%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+            position: relative;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .msg-bubble.user {
+            background: white;
+            align-self: flex-start;
+            border: 1px solid var(--gray-200);
+            border-bottom-left-radius: 4px;
+        }
+
+        .msg-bubble.assistant {
+            background: var(--mud);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .msg-bubble .msg-time {
+            font-size: 10px;
+            opacity: 0.6;
+            margin-top: 4px;
+        }
+
+        .msg-label {
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .msg-bubble.user .msg-label { color: var(--pig-hot); }
+        .msg-bubble.assistant .msg-label { color: var(--pig-pink); }
+
+        /* EMPTY STATE */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #bbb;
+            gap: 12px;
+        }
+
+        .empty-state .pig { font-size: 64px; }
+        .empty-state p { font-size: 16px; }
+
+        /* LOADING */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #888;
+            font-size: 16px;
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--gray-200);
+            border-top-color: var(--pig-hot);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ERROR */
+        .error-banner {
+            background: #FFF3CD;
+            border: 1px solid #FFD93D;
+            color: #856404;
+            padding: 12px 20px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            .sidebar { width: 100%; min-width: unset; height: 50vh; }
+            .header-stats { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-left">
+        <h1>🐷 <span>CERDÍN</span> Dashboard</h1>
+    </div>
+    <div class="header-stats">
+        <div class="stat-badge"><span class="live-dot"></span> Bot <strong>ACTIVO</strong></div>
+        <div class="stat-badge" id="stat-convos">Conversaciones: <strong>-</strong></div>
+        <div class="stat-badge" id="stat-msgs">Mensajes: <strong>-</strong></div>
+    </div>
+    <button class="refresh-btn" onclick="cargarDatos()">🔄 Actualizar</button>
+</div>
+
+<div class="error-banner" id="error-banner"></div>
+
+<div class="container">
+    <div class="sidebar">
+        <div class="search-bar">
+            <input type="text" id="search" placeholder="🔍 Buscar por número..." oninput="filtrar()">
+        </div>
+        <div class="conv-list" id="conv-list">
+            <div class="loading"><div class="spinner"></div> Cargando conversaciones...</div>
+        </div>
+    </div>
+    <div class="chat-panel" id="chat-panel">
+        <div class="empty-state">
+            <div class="pig">🐷</div>
+            <p>Seleccioná una conversación para ver los mensajes</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let conversaciones = {};
+    let seleccionada = null;
+
+    // Detectar si estamos en modo demo o producción
+    const isLocal = window.location.protocol === 'file:' || window.location.hostname === '';
+    const API_URL = isLocal ? null : '/api/conversaciones';
+
+    // DATOS DEMO para que veas cómo queda
+    const DEMO_DATA = {
+        "5491145678901": [
+            { role: "user", content: "Hola! cuanto sale la carrera?", timestamp: "2026-02-27T10:15:00Z" },
+            { role: "assistant", content: "¡Hola! 🐷 Qué bueno que te interesa Carrera Sucia! Los precios para adultos son:\n\n🏷️ EARLY BIRD (hasta 9 de marzo):\n- Sin remera: $54,000\n- Con remera: $68,000\n\n💰 NORMAL:\n- Sin remera: $65,000\n- Con remera: $79,000\n\nInscribite en www.carrerasucia.com.ar! Oink! 🐷", timestamp: "2026-02-27T10:15:05Z" },
+            { role: "user", content: "y para chicos?", timestamp: "2026-02-27T10:16:00Z" },
+            { role: "assistant", content: "Para los peques tenemos la categoría KIDS (5 a 12 años) 🧒\n\n🏷️ Early Bird: $32,000\n💰 Normal: $37,000\n\nEs un circuito de 1.5K con 6 obstáculos, ¡ideal para que se diviertan embarrándose! Las largadas KIDS son a las 10:30 y 13:30. Oink! 🐷", timestamp: "2026-02-27T10:16:08Z" }
+        ],
+        "5491167890123": [
+            { role: "user", content: "che se suspende si llueve?", timestamp: "2026-02-27T11:30:00Z" },
+            { role: "assistant", content: "¡Para nada! 🌧️ Carrera Sucia se hace LLUEVA o TRUENE. De hecho, con lluvia es más divertido porque hay más barro 💪😂 ¡Así que no hay excusas! La próxima es el 29 de marzo en Escobar. Oink! 🐷", timestamp: "2026-02-27T11:30:06Z" }
+        ],
+        "5491123456789": [
+            { role: "user", content: "hola donde es la carrera", timestamp: "2026-02-27T09:00:00Z" },
+            { role: "assistant", content: "¡Hola! 👋 La próxima Carrera Sucia es el 29 de marzo de 2026 en Escobar, Provincia de Buenos Aires. Es un circuito de 5K con más de 20 obstáculos llenos de barro. ¡Va a estar tremenda! Inscribite en www.carrerasucia.com.ar. Oink! 🐷", timestamp: "2026-02-27T09:00:07Z" },
+            { role: "user", content: "puedo ir con mi hijo de 7 años?", timestamp: "2026-02-27T09:01:00Z" },
+            { role: "assistant", content: "¡Sí! 🎉 Tu hijo de 7 puede correr en la categoría KIDS, que es para chicos de 5 a 12 años. Es un circuito de 1.5K con 6 obstáculos adaptados. Las largadas son a las 10:30 y 13:30. Cada niño debe ir acompañado por un adulto inscripto. Oink! 🐷", timestamp: "2026-02-27T09:01:10Z" },
+            { role: "user", content: "genial gracias!", timestamp: "2026-02-27T09:02:00Z" },
+            { role: "assistant", content: "¡De nada! 🐷 Cualquier otra duda acá estoy. ¡Los esperamos el 29 de marzo para embarrarse juntos! 💪🏃 Oink!", timestamp: "2026-02-27T09:02:05Z" }
+        ],
+        "5491198765432": [
+            { role: "user", content: "hay duchas?", timestamp: "2026-02-26T15:00:00Z" },
+            { role: "assistant", content: "¡Sí! 🚿 Hay duchas disponibles para que te saques el barro después de la carrera. También hay vestuarios y guardarropa para que dejes tus cosas seguras mientras corrés. Oink! 🐷", timestamp: "2026-02-26T15:00:04Z" }
+        ]
+    };
+
+    async function cargarDatos() {
+        try {
+            if (API_URL) {
+                const res = await fetch(API_URL);
+                if (!res.ok) throw new Error('Error ' + res.status);
+                conversaciones = await res.json();
+            } else {
+                // Modo demo
+                conversaciones = DEMO_DATA;
+            }
+            renderLista();
+            actualizarStats();
+            document.getElementById('error-banner').style.display = 'none';
+        } catch (err) {
+            document.getElementById('error-banner').textContent = '⚠️ Error cargando datos: ' + err.message + ' — ¿El bot está corriendo?';
+            document.getElementById('error-banner').style.display = 'block';
+            // Cargar demo como fallback
+            conversaciones = DEMO_DATA;
+            renderLista();
+            actualizarStats();
+        }
+    }
+
+    function actualizarStats() {
+        const numConvos = Object.keys(conversaciones).length;
+        let numMsgs = 0;
+        Object.values(conversaciones).forEach(msgs => numMsgs += msgs.length);
+        document.getElementById('stat-convos').innerHTML = 'Conversaciones: <strong>' + numConvos + '</strong>';
+        document.getElementById('stat-msgs').innerHTML = 'Mensajes: <strong>' + numMsgs + '</strong>';
+    }
+
+    function formatPhone(phone) {
+        // Limpiar formato
+        const clean = phone.replace(/\D/g, '');
+        if (clean.startsWith('549')) {
+            return '+54 9 ' + clean.slice(3, 5) + ' ' + clean.slice(5, 9) + '-' + clean.slice(9);
+        }
+        return phone;
+    }
+
+    function getInitials(phone) {
+        const clean = phone.replace(/\D/g, '');
+        return clean.slice(-2);
+    }
+
+    function formatTime(ts) {
+        if (!ts) return '';
+        const d = new Date(ts);
+        const now = new Date();
+        const diffH = (now - d) / (1000 * 60 * 60);
+
+        if (diffH < 24) {
+            return d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+        } else {
+            return d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' });
+        }
+    }
+
+    function renderLista() {
+        const list = document.getElementById('conv-list');
+        const searchVal = document.getElementById('search').value.toLowerCase();
+
+        // Ordenar por último mensaje (más reciente primero)
+        const sorted = Object.entries(conversaciones).sort((a, b) => {
+            const lastA = a[1][a[1].length - 1]?.timestamp || '';
+            const lastB = b[1][b[1].length - 1]?.timestamp || '';
+            return lastB.localeCompare(lastA);
+        });
+
+        let html = '';
+        sorted.forEach(([phone, msgs]) => {
+            if (searchVal && !phone.includes(searchVal)) return;
+
+            const lastMsg = msgs[msgs.length - 1];
+            const userMsgs = msgs.filter(m => m.role === 'user');
+            const preview = lastMsg ? (lastMsg.role === 'user' ? '👤 ' : '🐷 ') + lastMsg.content.substring(0, 50) + '...' : '';
+            const isActive = phone === seleccionada ? 'active' : '';
+
+            html += `
+                <div class="conv-item ${isActive}" onclick="selectConv('${phone}')">
+                    <div class="conv-avatar">${getInitials(phone)}</div>
+                    <div class="conv-info">
+                        <div class="phone">${formatPhone(phone)}</div>
+                        <div class="preview">${preview}</div>
+                    </div>
+                    <div class="conv-meta">
+                        <div class="time">${formatTime(lastMsg?.timestamp)}</div>
+                        <div class="msg-count">${msgs.length}</div>
+                    </div>
+                </div>
+            `;
+        });
+
+        if (!html) {
+            html = '<div class="empty-state"><p>No hay conversaciones</p></div>';
+        }
+
+        list.innerHTML = html;
+    }
+
+    function selectConv(phone) {
+        seleccionada = phone;
+        renderLista();
+        renderChat(phone);
+    }
+
+    function renderChat(phone) {
+        const panel = document.getElementById('chat-panel');
+        const msgs = conversaciones[phone] || [];
+        const userMsgs = msgs.filter(m => m.role === 'user').length;
+
+        let html = `
+            <div class="chat-header">
+                <div class="conv-avatar" style="width:36px;height:36px;font-size:14px;">${getInitials(phone)}</div>
+                <div>
+                    <div class="phone-big">${formatPhone(phone)}</div>
+                    <div class="msg-total">${msgs.length} mensajes · ${userMsgs} del cliente</div>
+                </div>
+            </div>
+            <div class="chat-messages">
+        `;
+
+        msgs.forEach(msg => {
+            const label = msg.role === 'user' ? '👤 Cliente' : '🐷 CERDÍN';
+            const cls = msg.role;
+            html += `
+                <div class="msg-bubble ${cls}">
+                    <div class="msg-label">${label}</div>
+                    ${msg.content.replace(/\n/g, '<br>')}
+                    <div class="msg-time">${formatTime(msg.timestamp)}</div>
+                </div>
+            `;
+        });
+
+        html += '</div>';
+        panel.innerHTML = html;
+
+        // Scroll al final
+        const chatMsgs = panel.querySelector('.chat-messages');
+        if (chatMsgs) chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    }
+
+    function filtrar() { renderLista(); }
+
+    // Auto-refresh cada 30 segundos
+    setInterval(cargarDatos, 30000);
+
+    // Cargar al inicio
+    cargarDatos();
+</script>
+
+</body>
+</html>
