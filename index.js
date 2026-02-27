@@ -1,6 +1,7 @@
 const express = require('express');
 const Anthropic = require('@anthropic-ai/sdk');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 app.use(express.json());
@@ -13,8 +14,48 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 
-// Historial en memoria (por número de teléfono)
-const conversaciones = {};
+// =============================================
+// PERSISTENCIA EN DISCO
+// =============================================
+const DATA_DIR = path.join(__dirname, 'data');
+const CONVERSACIONES_FILE = path.join(DATA_DIR, 'conversaciones.json');
+
+// Crear carpeta data si no existe
+if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+    console.log('📁 Carpeta data creada');
+}
+
+// Cargar conversaciones guardadas
+let conversaciones = {};
+try {
+    if (fs.existsSync(CONVERSACIONES_FILE)) {
+        const datos = fs.readFileSync(CONVERSACIONES_FILE, 'utf8');
+        conversaciones = JSON.parse(datos);
+        const numConvos = Object.keys(conversaciones).length;
+        let numMsgs = 0;
+        Object.values(conversaciones).forEach(msgs => numMsgs += msgs.length);
+        console.log(`📂 Conversaciones cargadas: ${numConvos} chats, ${numMsgs} mensajes`);
+    } else {
+        console.log('📂 Sin conversaciones previas, empezando de cero');
+    }
+} catch (error) {
+    console.error('⚠️ Error cargando conversaciones:', error.message);
+    conversaciones = {};
+}
+
+// Guardar a disco (con debounce para no escribir en cada mensaje)
+let guardarTimeout = null;
+function guardarADisco() {
+    if (guardarTimeout) clearTimeout(guardarTimeout);
+    guardarTimeout = setTimeout(() => {
+        try {
+            fs.writeFileSync(CONVERSACIONES_FILE, JSON.stringify(conversaciones, null, 2), 'utf8');
+        } catch (error) {
+            console.error('⚠️ Error guardando conversaciones:', error.message);
+        }
+    }, 1000);
+}
 
 function obtenerHistorial(telefono, limite = 10) {
     const historial = conversaciones[telefono] || [];
@@ -33,6 +74,7 @@ function guardarMensaje(telefono, rol, contenido) {
     if (conversaciones[telefono].length > 50) {
         conversaciones[telefono] = conversaciones[telefono].slice(-50);
     }
+    guardarADisco();
 }
 
 function generarSystemPrompt() {
@@ -235,6 +277,7 @@ app.listen(PORT, () => {
     console.log(`📱 Phone Number ID: ${PHONE_NUMBER_ID}`);
     console.log(`🤖 Claude AI: Activo`);
     console.log(`📊 Dashboard: /dashboard`);
+    console.log(`💾 Persistencia: ${CONVERSACIONES_FILE}`);
     console.log(`🔑 Token Meta: ${WHATSAPP_TOKEN ? '✅ Configurado' : '❌ FALTA'}`);
     console.log(`🔑 Token Claude: ${ANTHROPIC_API_KEY ? '✅ Configurado' : '❌ FALTA'}`);
     console.log('');
