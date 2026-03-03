@@ -138,7 +138,7 @@ HORARIOS:
 
 PRECIOS 2026:
 - Individual: $65,000
-- Grupo (4 personas): $216,000
+- Grupo (4 personas): $260,000
 - KIDS: $32,000 (incluye remera)
 - ELITE: $70,000
 - Remera adicional: $14,000
