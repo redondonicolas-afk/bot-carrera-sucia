@@ -611,6 +611,87 @@
 
         .logout-btn:hover { color: #e5e5e5; border-color: #555; }
         .user-label { font-size: 11px; color: #666; }
+
+        /* ====== TAB NAV ====== */
+        .tab-nav { display: flex; gap: 4px; margin-left: 16px; }
+        .tab-btn {
+            background: transparent; border: 1px solid #333; border-radius: 6px;
+            padding: 5px 12px; color: #888; font-size: 12px; cursor: pointer; font-family: inherit;
+        }
+        .tab-btn.active { background: #222; color: #e5e5e5; border-color: #555; }
+        .tab-btn:hover { color: #e5e5e5; }
+
+        /* ====== CONFIG PANEL ====== */
+        .config-view { display: none; height: calc(100vh - 55px); overflow-y: auto; padding: 24px; }
+        .config-view.active { display: block; }
+        .chat-view { display: flex; height: calc(100vh - 55px); }
+        .chat-view.hidden-view { display: none; }
+
+        .config-section {
+            background: #111; border: 1px solid #1a1a1a; border-radius: 12px;
+            padding: 20px; margin-bottom: 16px; max-width: 900px;
+        }
+        .config-section h3 { font-size: 15px; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+        .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .config-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+        .config-field { display: flex; flex-direction: column; gap: 4px; }
+        .config-field label { font-size: 11px; color: #666; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        .config-field input, .config-field textarea, .config-field select {
+            background: #0a0a0a; border: 1px solid #222; border-radius: 8px;
+            padding: 8px 12px; color: #e5e5e5; font-size: 13px; font-family: inherit; outline: none;
+        }
+        .config-field input:focus, .config-field textarea:focus { border-color: #444; }
+        .config-field textarea { resize: vertical; min-height: 60px; }
+        .config-field.full { grid-column: 1 / -1; }
+
+        .config-save-bar {
+            position: sticky; bottom: 0; background: #0a0a0a; padding: 16px 0;
+            border-top: 1px solid #222; max-width: 900px;
+            display: flex; gap: 12px; align-items: center;
+        }
+        .config-save-btn {
+            background: linear-gradient(135deg, #065f46, #059669); border: none;
+            border-radius: 8px; padding: 10px 24px; color: #fff; font-weight: 600;
+            font-size: 13px; cursor: pointer; font-family: inherit;
+        }
+        .config-save-btn:hover { opacity: 0.9; }
+        .config-save-msg { font-size: 12px; color: #059669; }
+
+        /* Horarios table */
+        .horarios-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        .horarios-table th {
+            text-align: left; font-size: 11px; color: #666; padding: 6px 8px;
+            border-bottom: 1px solid #222; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .horarios-table td { padding: 6px 8px; font-size: 13px; border-bottom: 1px solid #1a1a1a; }
+        .horarios-table input {
+            background: #0a0a0a; border: 1px solid #222; border-radius: 6px;
+            padding: 4px 8px; color: #e5e5e5; font-size: 13px; width: 70px; text-align: center;
+            font-family: inherit; outline: none;
+        }
+        .horarios-table input:focus { border-color: #444; }
+        .cupo-bar { height: 6px; background: #1a1a1a; border-radius: 3px; width: 100px; overflow: hidden; }
+        .cupo-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+        .cupo-ok { background: #059669; }
+        .cupo-warn { background: #d97706; }
+        .cupo-full { background: #dc2626; }
+        .estado-tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+        .estado-disponible { background: #064e3b; color: #34d399; }
+        .estado-pocos { background: #78350f; color: #fbbf24; }
+        .estado-agotado { background: #7f1d1d; color: #f87171; }
+
+        .add-horario-btn {
+            background: #151515; border: 1px dashed #333; border-radius: 8px;
+            padding: 8px 16px; color: #666; font-size: 12px; cursor: pointer;
+            font-family: inherit; margin-top: 8px;
+        }
+        .add-horario-btn:hover { color: #e5e5e5; border-color: #555; }
+        .remove-btn { background: none; border: none; color: #555; cursor: pointer; font-size: 14px; }
+        .remove-btn:hover { color: #f87171; }
+
+        .servicios-checks { display: flex; flex-wrap: wrap; gap: 12px; }
+        .serv-check { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+        .serv-check input { accent-color: #059669; }
     </style>
 </head>
 <body>
@@ -640,6 +721,10 @@
             <div class="status-dot"></div>
             ACTIVO
         </div>
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="chats" onclick="switchTab('chats')">💬 Chats</button>
+            <button class="tab-btn" data-tab="config" onclick="switchTab('config')">⚙️ Config</button>
+        </div>
     </div>
     <div class="topbar-stats">
         <div class="stat"><div class="stat-value" id="stat-total">0</div><div class="stat-label">Chats</div></div>
@@ -662,7 +747,7 @@
 </div>
 
 <!-- ====== MAIN ====== -->
-<div class="main">
+<div class="main chat-view" id="chat-view">
 
     <!-- ====== SIDEBAR ====== -->
     <div class="sidebar">
@@ -689,6 +774,83 @@
             <div class="sub" id="empty-sub"></div>
         </div>
     </div>
+</div>
+
+<!-- ====== CONFIG VIEW ====== -->
+<div class="config-view" id="config-view">
+
+    <div class="config-section">
+        <h3>📅 Evento</h3>
+        <div class="config-grid">
+            <div class="config-field"><label>Nombre</label><input id="cfg-evento-nombre"></div>
+            <div class="config-field"><label>Fecha</label><input type="date" id="cfg-evento-fecha"></div>
+            <div class="config-field full"><label>Lugar</label><input id="cfg-evento-lugar"></div>
+            <div class="config-field"><label>Google Maps</label><input id="cfg-evento-maps"></div>
+            <div class="config-field"><label>Link inscripción</label><input id="cfg-evento-inscripcion"></div>
+            <div class="config-field"><label>Descripción adultos</label><input id="cfg-evento-desc-adultos"></div>
+            <div class="config-field"><label>Descripción kids</label><input id="cfg-evento-desc-kids"></div>
+        </div>
+    </div>
+
+    <div class="config-section">
+        <h3>💰 Precios</h3>
+        <div class="config-grid three">
+            <div class="config-field"><label>Individual</label><input type="number" id="cfg-precio-individual"></div>
+            <div class="config-field"><label>Grupo (total)</label><input type="number" id="cfg-precio-grupo"></div>
+            <div class="config-field"><label>Personas en grupo</label><input type="number" id="cfg-precio-grupo-cant"></div>
+            <div class="config-field"><label>KIDS</label><input type="number" id="cfg-precio-kids"></div>
+            <div class="config-field"><label>ELITE</label><input type="number" id="cfg-precio-elite"></div>
+            <div class="config-field"><label>Remera adicional</label><input type="number" id="cfg-precio-remera"></div>
+        </div>
+    </div>
+
+    <div class="config-section">
+        <h3>🎫 Horarios y Cupos</h3>
+        <p style="font-size:12px;color:#666;margin-bottom:12px">Acá podés editar los cupos y cargar las entradas vendidas por horario. El bot automáticamente le dice al cliente qué horarios tienen disponibilidad.</p>
+        <table class="horarios-table">
+            <thead><tr><th>Hora</th><th>Categoría</th><th>Cupo</th><th>Vendidos</th><th>Disponibilidad</th><th>Estado</th><th></th></tr></thead>
+            <tbody id="horarios-body"></tbody>
+        </table>
+        <button class="add-horario-btn" onclick="addHorario()">+ Agregar horario</button>
+    </div>
+
+    <div class="config-section">
+        <h3>📞 Contacto</h3>
+        <div class="config-grid">
+            <div class="config-field"><label>Email</label><input id="cfg-contacto-email"></div>
+            <div class="config-field"><label>Instagram</label><input id="cfg-contacto-ig"></div>
+        </div>
+    </div>
+
+    <div class="config-section">
+        <h3>🚿 Servicios disponibles</h3>
+        <div class="servicios-checks" id="servicios-checks"></div>
+    </div>
+
+    <div class="config-section">
+        <h3>📝 Nota temporal</h3>
+        <p style="font-size:12px;color:#666;margin-bottom:8px">Acá podés poner info temporal que el bot va a mencionar (ej: "Promo 2x1 hasta el viernes", "Se cambió el lugar de la carrera")</p>
+        <div class="config-field full">
+            <textarea id="cfg-notas" rows="3" placeholder="Escribí una nota y el bot la va a tener en cuenta..."></textarea>
+        </div>
+    </div>
+
+    <div class="config-section">
+        <h3>🐷 Personalidad del bot</h3>
+        <div class="config-grid">
+            <div class="config-field"><label>Nombre del bot</label><input id="cfg-per-nombre"></div>
+            <div class="config-field"><label>Frase de cierre</label><input id="cfg-per-cierre"></div>
+            <div class="config-field"><label>Tono</label><input id="cfg-per-tono"></div>
+            <div class="config-field"><label>Idioma</label><input id="cfg-per-idioma"></div>
+            <div class="config-field full"><label>Cuándo derivar a humano</label><input id="cfg-per-derivar"></div>
+        </div>
+    </div>
+
+    <div class="config-save-bar">
+        <button class="config-save-btn" onclick="saveConfig()">💾 Guardar cambios</button>
+        <span class="config-save-msg" id="config-save-msg"></span>
+    </div>
+
 </div>
 
 <!-- ====== MODAL ====== -->
@@ -1197,6 +1359,174 @@ async function refresh() {
     renderList();
     if (selectedId) renderChat();
     loading = false;
+}
+
+// ==================== TAB SWITCHING ====================
+function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    document.getElementById('chat-view').classList.toggle('hidden-view', tab !== 'chats');
+    document.getElementById('config-view').classList.toggle('active', tab === 'config');
+    if (tab === 'config') loadConfig();
+}
+
+// ==================== CONFIG ====================
+let configData = null;
+const ALL_SERVICIOS = ["duchas", "vestuarios", "guardarropa", "estacionamiento", "food trucks", "escenario", "zona camping"];
+
+async function loadConfig() {
+    try {
+        const res = await fetch('/api/config');
+        if (!res.ok) throw new Error('Error');
+        configData = await res.json();
+        fillConfigForm();
+    } catch (e) {
+        console.error('Error cargando config:', e);
+        // Use defaults for demo
+        if (!configData) configData = { evento: {}, precios: {}, horarios: [], contacto: {}, servicios: [], notas: '', personalidad: {} };
+    }
+}
+
+function fillConfigForm() {
+    const c = configData;
+    // Evento
+    document.getElementById('cfg-evento-nombre').value = c.evento?.nombre || '';
+    document.getElementById('cfg-evento-fecha').value = c.evento?.fecha || '';
+    document.getElementById('cfg-evento-lugar').value = c.evento?.lugar || '';
+    document.getElementById('cfg-evento-maps').value = c.evento?.maps || '';
+    document.getElementById('cfg-evento-inscripcion').value = c.evento?.inscripcion || '';
+    document.getElementById('cfg-evento-desc-adultos').value = c.evento?.descripcion_adultos || '';
+    document.getElementById('cfg-evento-desc-kids').value = c.evento?.descripcion_kids || '';
+    // Precios
+    document.getElementById('cfg-precio-individual').value = c.precios?.individual || 0;
+    document.getElementById('cfg-precio-grupo').value = c.precios?.grupo_precio || 0;
+    document.getElementById('cfg-precio-grupo-cant').value = c.precios?.grupo_cantidad || 4;
+    document.getElementById('cfg-precio-kids').value = c.precios?.kids || 0;
+    document.getElementById('cfg-precio-elite').value = c.precios?.elite || 0;
+    document.getElementById('cfg-precio-remera').value = c.precios?.remera || 0;
+    // Contacto
+    document.getElementById('cfg-contacto-email').value = c.contacto?.email || '';
+    document.getElementById('cfg-contacto-ig').value = c.contacto?.instagram || '';
+    // Notas
+    document.getElementById('cfg-notas').value = c.notas || '';
+    // Personalidad
+    document.getElementById('cfg-per-nombre').value = c.personalidad?.nombre || '';
+    document.getElementById('cfg-per-cierre').value = c.personalidad?.cierre || '';
+    document.getElementById('cfg-per-tono').value = c.personalidad?.tono || '';
+    document.getElementById('cfg-per-idioma').value = c.personalidad?.idioma || '';
+    document.getElementById('cfg-per-derivar').value = c.personalidad?.derivar_a_humano || '';
+    // Horarios
+    renderHorarios();
+    // Servicios
+    renderServicios();
+}
+
+function renderHorarios() {
+    const body = document.getElementById('horarios-body');
+    if (!configData?.horarios) { body.innerHTML = ''; return; }
+    body.innerHTML = configData.horarios.map((h, i) => {
+        const disp = h.cupo - h.vendidos;
+        const pct = h.cupo > 0 ? (h.vendidos / h.cupo * 100) : 0;
+        const fillClass = pct >= 100 ? 'cupo-full' : pct >= 80 ? 'cupo-warn' : 'cupo-ok';
+        const estadoClass = disp <= 0 ? 'estado-agotado' : disp <= 10 ? 'estado-pocos' : 'estado-disponible';
+        const estadoText = disp <= 0 ? 'AGOTADO' : disp <= 10 ? `${disp} lugares` : `${disp} disponibles`;
+        return `<tr>
+            <td><input value="${h.hora}" onchange="configData.horarios[${i}].hora=this.value" style="width:60px"></td>
+            <td><select onchange="configData.horarios[${i}].categoria=this.value" style="background:#0a0a0a;border:1px solid #222;border-radius:6px;padding:4px 8px;color:#e5e5e5;font-size:13px;font-family:inherit">
+                <option ${h.categoria==='ADULTOS'?'selected':''}>ADULTOS</option>
+                <option ${h.categoria==='KIDS'?'selected':''}>KIDS</option>
+                <option ${h.categoria==='ELITE'?'selected':''}>ELITE</option>
+            </select></td>
+            <td><input type="number" value="${h.cupo}" onchange="configData.horarios[${i}].cupo=parseInt(this.value);renderHorarios()"></td>
+            <td><input type="number" value="${h.vendidos}" onchange="configData.horarios[${i}].vendidos=parseInt(this.value);renderHorarios()"></td>
+            <td><div class="cupo-bar"><div class="cupo-fill ${fillClass}" style="width:${Math.min(pct,100)}%"></div></div></td>
+            <td><span class="estado-tag ${estadoClass}">${estadoText}</span></td>
+            <td><button class="remove-btn" onclick="removeHorario(${i})">✕</button></td>
+        </tr>`;
+    }).join('');
+}
+
+function addHorario() {
+    if (!configData.horarios) configData.horarios = [];
+    configData.horarios.push({ hora: "10:00", categoria: "ADULTOS", cupo: 100, vendidos: 0 });
+    renderHorarios();
+}
+
+function removeHorario(i) {
+    configData.horarios.splice(i, 1);
+    renderHorarios();
+}
+
+function renderServicios() {
+    const container = document.getElementById('servicios-checks');
+    const activos = configData?.servicios || [];
+    container.innerHTML = ALL_SERVICIOS.map(s => {
+        const checked = activos.includes(s) ? 'checked' : '';
+        return `<label class="serv-check"><input type="checkbox" value="${s}" ${checked}> ${s}</label>`;
+    }).join('');
+}
+
+function getServiciosFromForm() {
+    return Array.from(document.querySelectorAll('#servicios-checks input:checked')).map(cb => cb.value);
+}
+
+async function saveConfig() {
+    const newConfig = {
+        evento: {
+            nombre: document.getElementById('cfg-evento-nombre').value,
+            fecha: document.getElementById('cfg-evento-fecha').value,
+            lugar: document.getElementById('cfg-evento-lugar').value,
+            maps: document.getElementById('cfg-evento-maps').value,
+            inscripcion: document.getElementById('cfg-evento-inscripcion').value,
+            descripcion_adultos: document.getElementById('cfg-evento-desc-adultos').value,
+            descripcion_kids: document.getElementById('cfg-evento-desc-kids').value
+        },
+        precios: {
+            individual: parseInt(document.getElementById('cfg-precio-individual').value) || 0,
+            grupo_precio: parseInt(document.getElementById('cfg-precio-grupo').value) || 0,
+            grupo_cantidad: parseInt(document.getElementById('cfg-precio-grupo-cant').value) || 4,
+            kids: parseInt(document.getElementById('cfg-precio-kids').value) || 0,
+            elite: parseInt(document.getElementById('cfg-precio-elite').value) || 0,
+            remera: parseInt(document.getElementById('cfg-precio-remera').value) || 0
+        },
+        horarios: configData.horarios,
+        contacto: {
+            email: document.getElementById('cfg-contacto-email').value,
+            instagram: document.getElementById('cfg-contacto-ig').value
+        },
+        servicios: getServiciosFromForm(),
+        notas: document.getElementById('cfg-notas').value,
+        personalidad: {
+            nombre: document.getElementById('cfg-per-nombre').value,
+            cierre: document.getElementById('cfg-per-cierre').value,
+            tono: document.getElementById('cfg-per-tono').value,
+            idioma: document.getElementById('cfg-per-idioma').value,
+            derivar_a_humano: document.getElementById('cfg-per-derivar').value
+        }
+    };
+
+    if (isLocal) {
+        configData = newConfig;
+        document.getElementById('config-save-msg').textContent = '✅ Guardado (modo demo)';
+        setTimeout(() => document.getElementById('config-save-msg').textContent = '', 3000);
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newConfig)
+        });
+        if (!res.ok) throw new Error('Error');
+        const data = await res.json();
+        configData = data.config;
+        document.getElementById('config-save-msg').textContent = '✅ Guardado! El bot ya usa la nueva config.';
+        setTimeout(() => document.getElementById('config-save-msg').textContent = '', 4000);
+    } catch (e) {
+        console.error('Error guardando config:', e);
+        document.getElementById('config-save-msg').textContent = '❌ Error al guardar';
+        document.getElementById('config-save-msg').style.color = '#f43f5e';
+    }
 }
 
 // Init - only start if already authenticated
