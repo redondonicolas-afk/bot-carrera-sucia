@@ -534,9 +534,99 @@
         ::-webkit-scrollbar-thumb:hover { background: #333; }
 
         .hidden { display: none !important; }
+
+        /* ====== LOGIN SCREEN ====== */
+        .login-overlay {
+            position: fixed;
+            inset: 0;
+            background: #0a0a0a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .login-box {
+            width: 340px;
+            text-align: center;
+        }
+
+        .login-logo { font-size: 64px; margin-bottom: 16px; }
+        .login-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+        .login-sub { font-size: 13px; color: #555; margin-bottom: 32px; }
+
+        .login-field {
+            width: 100%;
+            padding: 12px 16px;
+            background: #151515;
+            border: 1px solid #222;
+            border-radius: 10px;
+            color: #e5e5e5;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            margin-bottom: 12px;
+            transition: border-color 0.15s;
+        }
+
+        .login-field:focus { border-color: #444; }
+        .login-field::placeholder { color: #444; }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #7c2d12, #c2410c);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: opacity 0.15s;
+            margin-top: 4px;
+        }
+
+        .login-btn:hover { opacity: 0.9; }
+
+        .login-error {
+            color: #f43f5e;
+            font-size: 12px;
+            margin-top: 12px;
+            min-height: 18px;
+        }
+
+        /* Logout button */
+        .logout-btn {
+            background: #222;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 6px 10px;
+            color: #888;
+            font-size: 11px;
+            cursor: pointer;
+            font-family: inherit;
+            margin-left: 8px;
+        }
+
+        .logout-btn:hover { color: #e5e5e5; border-color: #555; }
+        .user-label { font-size: 11px; color: #666; }
     </style>
 </head>
 <body>
+
+<!-- ====== LOGIN SCREEN ====== -->
+<div class="login-overlay" id="login-overlay">
+    <div class="login-box">
+        <div class="login-logo">🐷</div>
+        <div class="login-title">CERDÍN Dashboard</div>
+        <div class="login-sub">Carrera Sucia · Ingresá para continuar</div>
+        <input type="text" class="login-field" id="login-user" placeholder="Usuario" autofocus onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
+        <input type="password" class="login-field" id="login-pass" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="login-btn" onclick="doLogin()">Ingresar</button>
+        <div class="login-error" id="login-error"></div>
+    </div>
+</div>
 
 <!-- ====== TOP BAR ====== -->
 <div class="topbar">
@@ -566,6 +656,8 @@
             <option value="Fede">Fede</option>
             <option value="Nico">Nico</option>
         </select>
+        <span class="user-label" id="user-label"></span>
+        <button class="logout-btn" onclick="doLogout()">Salir</button>
     </div>
 </div>
 
@@ -606,6 +698,61 @@
 
 
 <script>
+// ==================== AUTH ====================
+const USERS = {
+    "admin": { pass: "Adela12345", agent: "Nico", role: "admin" },
+    "fata": { pass: "Fata123", agent: "Fede", role: "equipo" },
+    "abril": { pass: "Abril12345", agent: "Abril", role: "equipo" }
+};
+
+let currentUser = null;
+
+function checkAuth() {
+    const saved = localStorage.getItem('cerdin_user');
+    if (saved && USERS[saved]) {
+        loginAs(saved);
+        return true;
+    }
+    return false;
+}
+
+function doLogin() {
+    const user = document.getElementById('login-user').value.trim().toLowerCase();
+    const pass = document.getElementById('login-pass').value;
+    const err = document.getElementById('login-error');
+
+    if (!user || !pass) { err.textContent = 'Completá usuario y contraseña'; return; }
+
+    const match = USERS[user];
+    if (!match || match.pass !== pass) { err.textContent = 'Usuario o contraseña incorrectos'; return; }
+
+    localStorage.setItem('cerdin_user', user);
+    loginAs(user);
+}
+
+function loginAs(user) {
+    currentUser = USERS[user];
+    document.getElementById('login-overlay').classList.add('hidden');
+    document.getElementById('agent-select').value = currentUser.agent;
+    document.getElementById('user-label').textContent = `👤 ${currentUser.agent}`;
+    refresh();
+}
+
+function doLogout() {
+    localStorage.removeItem('cerdin_user');
+    currentUser = null;
+    document.getElementById('login-overlay').classList.remove('hidden');
+    document.getElementById('login-user').value = '';
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-error').textContent = '';
+    document.getElementById('login-user').focus();
+}
+
+// Check auth on load
+if (!checkAuth()) {
+    document.getElementById('login-user').focus();
+}
+
 // ==================== CONFIG ====================
 const TEAM = ["Abril", "Fede", "Nico"];
 const isLocal = window.location.protocol === 'file:' || window.location.hostname === '';
@@ -1052,9 +1199,11 @@ async function refresh() {
     loading = false;
 }
 
-// Init
-refresh();
-setInterval(refresh, REFRESH_INTERVAL);
+// Init - only start if already authenticated
+if (currentUser) {
+    refresh();
+}
+setInterval(() => { if (currentUser) refresh(); }, REFRESH_INTERVAL);
 </script>
 
 </body>
