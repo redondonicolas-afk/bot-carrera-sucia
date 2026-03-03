@@ -3,565 +3,1058 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CERDÍN Dashboard - Carrera Sucia</title>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>CERDÍN Dashboard v3</title>
     <style>
-        :root {
-            --mud: #3D2B1F;
-            --mud-light: #5C3D2E;
-            --pig-pink: #FF6B9D;
-            --pig-hot: #FF2D6B;
-            --cream: #FFF8F0;
-            --dirt: #8B6914;
-            --grass: #4CAF50;
-            --grass-dark: #2E7D32;
-            --gray-100: #F5F0EB;
-            --gray-200: #E8E0D8;
-            --gray-300: #D4C9BE;
-            --shadow: rgba(61, 43, 31, 0.12);
-        }
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--cream);
-            color: var(--mud);
-            min-height: 100vh;
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
+            color: #e5e5e5;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        /* HEADER */
-        .header {
-            background: var(--mud);
-            color: white;
-            padding: 16px 24px;
+        /* ====== TOP BAR ====== */
+        .topbar {
+            background: #111;
+            border-bottom: 1px solid #222;
+            padding: 12px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
-        .header-left {
+        .topbar-left {
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .header h1 {
-            font-family: 'Archivo Black', sans-serif;
-            font-size: 22px;
-            letter-spacing: -0.5px;
-        }
+        .topbar-logo { font-size: 22px; }
+        .topbar-title { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+        .topbar-title span { color: #666; font-weight: 400; }
+        .topbar-subtitle { font-size: 11px; color: #555; }
 
-        .header h1 span { color: var(--pig-pink); }
-
-        .header-stats {
+        .status-badge {
+            margin-left: 12px;
             display: flex;
-            gap: 20px;
-        }
-
-        .stat-badge {
-            background: var(--mud-light);
-            padding: 6px 14px;
+            align-items: center;
+            gap: 6px;
+            background: #0d2818;
+            padding: 4px 10px;
             border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
+            font-size: 11px;
+            color: #4ade80;
+            font-weight: 600;
         }
 
-        .stat-badge strong { color: var(--pig-pink); }
-
-        .live-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: var(--grass);
+        .status-dot {
+            width: 6px; height: 6px;
             border-radius: 50%;
-            margin-right: 6px;
+            background: #4ade80;
             animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
+            50% { opacity: 0.3; }
         }
 
-        /* REFRESH BTN */
-        .refresh-btn {
-            background: var(--pig-hot);
-            color: white;
-            border: none;
-            padding: 8px 18px;
-            border-radius: 8px;
-            font-family: 'DM Sans', sans-serif;
-            font-weight: 700;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .refresh-btn:hover { background: var(--pig-pink); transform: scale(1.05); }
-
-        /* LAYOUT */
-        .container {
+        .topbar-stats {
             display: flex;
-            height: calc(100vh - 62px);
+            gap: 20px;
+            align-items: center;
         }
 
-        /* SIDEBAR - LISTA CONVERSACIONES */
+        .stat { text-align: center; }
+        .stat-value { font-size: 16px; font-weight: 700; }
+        .stat-label { font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topbar-right label { font-size: 11px; color: #555; }
+
+        .agent-select {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 6px 10px;
+            color: #e5e5e5;
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* ====== LAYOUT ====== */
+        .main {
+            display: flex;
+            height: calc(100vh - 54px);
+        }
+
+        /* ====== SIDEBAR ====== */
         .sidebar {
             width: 360px;
             min-width: 360px;
-            background: white;
-            border-right: 1px solid var(--gray-200);
+            border-right: 1px solid #1a1a1a;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            background: #0d0d0d;
         }
 
-        .search-bar {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--gray-200);
+        .search-box {
+            padding: 12px;
+            border-bottom: 1px solid #1a1a1a;
+            position: relative;
         }
 
-        .search-bar input {
+        .search-box svg {
+            position: absolute;
+            left: 22px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #444;
+        }
+
+        .search-box input {
             width: 100%;
-            padding: 10px 14px;
-            border: 2px solid var(--gray-200);
-            border-radius: 10px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
+            padding: 9px 12px 9px 36px;
+            background: #151515;
+            border: 1px solid #222;
+            border-radius: 8px;
+            color: #e5e5e5;
+            font-size: 13px;
+            font-family: inherit;
             outline: none;
-            transition: border-color 0.2s;
         }
 
-        .search-bar input:focus { border-color: var(--pig-pink); }
-        .search-bar input::placeholder { color: var(--gray-300); }
+        .search-box input:focus { border-color: #333; }
+        .search-box input::placeholder { color: #444; }
 
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 3px;
+            padding: 8px 12px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .filter-btn {
+            flex: 1;
+            padding: 6px 2px;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            color: #666;
+            font-size: 11px;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .filter-btn.active {
+            background: #1f1f1f;
+            border-color: #333;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .filter-btn:hover:not(.active) { background: #151515; }
+
+        .badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 8px;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        .badge-red { background: #f43f5e; color: #fff; }
+
+        /* Channel dot in filter */
+        .channel-dot-sm {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .channel-dot-sm.wa { background: #25d366; }
+        .channel-dot-sm.ig { background: #a855f7; }
+
+        /* Conv list */
         .conv-list {
             flex: 1;
             overflow-y: auto;
         }
 
         .conv-item {
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--gray-100);
+            padding: 12px 14px;
+            border-bottom: 1px solid #141414;
             cursor: pointer;
-            transition: background 0.15s;
+            border-left: 3px solid transparent;
+            transition: all 0.1s;
+        }
+
+        .conv-item:hover { background: #141414; }
+        .conv-item.active { background: #1a1a1a; border-left-color: #818cf8; }
+
+        .conv-row {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             align-items: flex-start;
         }
 
-        .conv-item:hover { background: var(--gray-100); }
-        .conv-item.active { background: #FFF0F5; border-left: 3px solid var(--pig-hot); }
-
         .conv-avatar {
-            width: 42px;
-            height: 42px;
+            width: 40px; height: 40px;
             border-radius: 50%;
-            background: var(--mud);
-            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 13px;
             font-weight: 700;
-            font-size: 16px;
+            color: #fff;
             flex-shrink: 0;
+            position: relative;
         }
+
+        .conv-avatar.ai { background: linear-gradient(135deg, #312e81, #4338ca); }
+        .conv-avatar.human { background: linear-gradient(135deg, #7c2d12, #c2410c); }
+
+        /* Channel indicator dot on avatar */
+        .channel-dot {
+            position: absolute;
+            top: -2px; right: -2px;
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            border: 2px solid #0d0d0d;
+        }
+
+        .channel-dot.wa { background: #25d366; }
+        .channel-dot.ig { background: #a855f7; }
+
+        /* Mode indicator dot on avatar */
+        .mode-dot {
+            position: absolute;
+            bottom: -1px; right: -1px;
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            border: 2px solid #0d0d0d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 7px;
+        }
+
+        .mode-dot.ai { background: #818cf8; }
+        .mode-dot.human { background: #fb923c; }
 
         .conv-info { flex: 1; min-width: 0; }
 
-        .conv-info .phone {
-            font-weight: 700;
-            font-size: 14px;
+        .conv-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
             margin-bottom: 2px;
         }
 
-        .conv-info .preview {
-            font-size: 13px;
-            color: #888;
+        .conv-name-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .conv-name { font-size: 13px; font-weight: 600; color: #e5e5e5; }
+
+        .conv-channel-tag {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .conv-channel-tag.wa { background: #052e16; color: #4ade80; }
+        .conv-channel-tag.ig { background: #2e1065; color: #c084fc; }
+
+        .conv-time { font-size: 11px; color: #555; flex-shrink: 0; }
+        .conv-phone { font-size: 11px; color: #444; margin-bottom: 2px; }
+
+        .conv-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .conv-preview {
+            font-size: 12px;
+            color: #555;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            max-width: 200px;
         }
 
-        .conv-meta {
-            text-align: right;
+        .conv-unread {
+            background: #f43f5e;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
             flex-shrink: 0;
         }
 
-        .conv-meta .time {
-            font-size: 11px;
-            color: #aaa;
-        }
-
-        .conv-meta .msg-count {
-            background: var(--pig-hot);
-            color: white;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 7px;
-            border-radius: 10px;
-            margin-top: 4px;
-            display: inline-block;
-        }
-
-        /* CHAT PANEL */
+        /* ====== CHAT PANEL ====== */
         .chat-panel {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: #FAF6F2;
+            background: #0a0a0a;
         }
 
         .chat-header {
-            padding: 14px 20px;
-            background: white;
-            border-bottom: 1px solid var(--gray-200);
+            padding: 12px 20px;
+            background: #111;
+            border-bottom: 1px solid #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-header-left {
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .chat-header .phone-big {
+        .chat-header-avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
             font-weight: 700;
-            font-size: 16px;
+            color: #fff;
         }
 
-        .chat-header .msg-total {
-            font-size: 13px;
-            color: #888;
+        .chat-header-name {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
+        .chat-header-meta { font-size: 11px; color: #555; }
+
+        .chat-header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mode-label { font-size: 12px; color: #555; }
+
+        .mode-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .mode-toggle.ai { background: #1e1b4b; border-color: #3730a3; color: #a5b4fc; }
+        .mode-toggle.human { background: #431407; border-color: #9a3412; color: #fdba74; }
+        .mode-toggle:hover { opacity: 0.85; }
+
+        /* Mode banner */
+        .mode-banner {
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .mode-banner.ai { background: #0c0a2a; border-bottom: 1px solid #1e1b4b; color: #818cf8; }
+        .mode-banner.human { background: #1c0a00; border-bottom: 1px solid #431407; color: #fb923c; }
+
+        /* Messages */
         .chat-messages {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 16px 20px;
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
 
+        .msg-row { display: flex; margin-bottom: 2px; }
+        .msg-row.from-user { justify-content: flex-start; }
+        .msg-row.from-bot, .msg-row.from-human { justify-content: flex-end; }
+
         .msg-bubble {
             max-width: 70%;
             padding: 10px 14px;
             border-radius: 12px;
-            font-size: 14px;
-            line-height: 1.5;
-            position: relative;
-            animation: fadeIn 0.2s ease;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+        .msg-bubble.user { background: #1a1a1a; border: 1px solid #222; }
+        .msg-bubble.bot { background: #0f0d26; border: 1px solid #1e1b4b; }
+        .msg-bubble.human-msg { background: #1c1207; border: 1px solid #3d2607; }
+
+        .msg-sender {
+            font-size: 10px; font-weight: 700; margin-bottom: 4px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            display: flex; align-items: center; gap: 4px;
         }
 
-        .msg-bubble.user {
-            background: white;
-            align-self: flex-start;
-            border: 1px solid var(--gray-200);
-            border-bottom-left-radius: 4px;
-        }
+        .msg-sender.user-sender { color: #666; }
+        .msg-sender.bot-sender { color: #818cf8; }
+        .msg-sender.human-sender { color: #fb923c; }
 
-        .msg-bubble.assistant {
-            background: var(--mud);
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
-        }
+        .msg-content { font-size: 13px; line-height: 1.5; color: #d4d4d4; white-space: pre-wrap; }
+        .msg-time { font-size: 10px; color: #444; margin-top: 4px; text-align: right; }
 
-        .msg-bubble .msg-time {
-            font-size: 10px;
-            opacity: 0.6;
-            margin-top: 4px;
-        }
-
-        .msg-label {
-            font-size: 11px;
-            font-weight: 700;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .msg-bubble.user .msg-label { color: var(--pig-hot); }
-        .msg-bubble.assistant .msg-label { color: var(--pig-pink); }
-
-        /* EMPTY STATE */
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: #bbb;
-            gap: 12px;
-        }
-
-        .empty-state .pig { font-size: 64px; }
-        .empty-state p { font-size: 16px; }
-
-        /* LOADING */
-        .loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: #888;
-            font-size: 16px;
-        }
-
-        .spinner {
-            width: 24px;
-            height: 24px;
-            border: 3px solid var(--gray-200);
-            border-top-color: var(--pig-hot);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-right: 10px;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* ERROR */
-        .error-banner {
-            background: #FFF3CD;
-            border: 1px solid #FFD93D;
-            color: #856404;
+        /* Input area */
+        .chat-input {
             padding: 12px 20px;
-            text-align: center;
-            font-size: 14px;
-            display: none;
+            background: #111;
+            border-top: 1px solid #1a1a1a;
         }
 
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .container { flex-direction: column; }
-            .sidebar { width: 100%; min-width: unset; height: 50vh; }
-            .header-stats { display: none; }
+        .chat-input-row { display: flex; gap: 8px; align-items: flex-end; }
+
+        .chat-input textarea {
+            flex: 1; padding: 10px 14px; background: #1a1a1a;
+            border: 1px solid #333; border-radius: 10px; color: #e5e5e5;
+            font-size: 13px; font-family: inherit; outline: none; resize: none;
+            line-height: 1.4; min-height: 42px; max-height: 120px;
         }
+
+        .chat-input textarea:focus { border-color: #c2410c; }
+        .chat-input textarea::placeholder { color: #555; }
+
+        .send-btn {
+            width: 42px; height: 42px; border-radius: 10px; border: none;
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+        }
+
+        .send-btn.active { background: #c2410c; }
+        .send-btn.inactive { background: #222; cursor: default; }
+
+        .chat-input-hint { font-size: 11px; color: #444; margin-top: 6px; }
+        .chat-input-hint strong { color: #fb923c; }
+
+        .ai-footer {
+            padding: 14px 20px; background: #0c0a2a; border-top: 1px solid #1e1b4b;
+            text-align: center; font-size: 12px; color: #555;
+        }
+
+        .ai-footer button {
+            background: none; border: none; color: #818cf8; cursor: pointer;
+            font-weight: 600; font-size: 12px; text-decoration: underline; font-family: inherit;
+        }
+
+        /* Empty state */
+        .empty-state {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            flex-direction: column; gap: 12px; color: #333;
+        }
+
+        .empty-state .big-icon { font-size: 64px; }
+        .empty-state .title { font-size: 15px; font-weight: 600; }
+        .empty-state .sub { font-size: 12px; color: #444; }
+
+        /* ====== MODAL ====== */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            display: flex; align-items: center; justify-content: center; z-index: 1000;
+        }
+
+        .modal {
+            background: #1a1a1a; border-radius: 16px; padding: 24px;
+            width: 380px; border: 1px solid #333;
+        }
+
+        .modal-icon { font-size: 24px; margin-bottom: 12px; }
+        .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+        .modal-desc { font-size: 13px; color: #888; margin-bottom: 20px; }
+        .modal-label { font-size: 12px; color: #888; margin-bottom: 8px; }
+
+        .modal-agents { display: flex; gap: 8px; margin-bottom: 20px; }
+
+        .modal-agent-btn {
+            flex: 1; padding: 10px; background: #261a04; border: 1px solid #7c2d12;
+            border-radius: 8px; color: #fdba74; font-size: 13px; font-weight: 600;
+            cursor: pointer; font-family: inherit; transition: all 0.15s;
+        }
+
+        .modal-agent-btn:hover { background: #3d2607; }
+
+        .modal-actions { display: flex; gap: 8px; }
+
+        .modal-btn {
+            flex: 1; padding: 10px; border-radius: 8px; font-size: 13px;
+            cursor: pointer; font-family: inherit; border: 1px solid; transition: all 0.15s;
+        }
+
+        .modal-btn.cancel { background: #222; border-color: #333; color: #888; }
+        .modal-btn.confirm { background: #1e1b4b; border-color: #3730a3; color: #a5b4fc; font-weight: 600; }
+        .modal-btn:hover { opacity: 0.85; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #333; }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div class="header-left">
-        <h1>🐷 <span>CERDÍN</span> Dashboard</h1>
+<!-- ====== TOP BAR ====== -->
+<div class="topbar">
+    <div class="topbar-left">
+        <div class="topbar-logo">🐷</div>
+        <div>
+            <div class="topbar-title">CERDÍN <span>Dashboard</span></div>
+            <div class="topbar-subtitle">Carrera Sucia · WhatsApp + Instagram</div>
+        </div>
+        <div class="status-badge">
+            <div class="status-dot"></div>
+            ACTIVO
+        </div>
     </div>
-    <div class="header-stats">
-        <div class="stat-badge"><span class="live-dot"></span> Bot <strong>ACTIVO</strong></div>
-        <div class="stat-badge" id="stat-convos">Conversaciones: <strong>-</strong></div>
-        <div class="stat-badge" id="stat-msgs">Mensajes: <strong>-</strong></div>
+    <div class="topbar-stats">
+        <div class="stat"><div class="stat-value" id="stat-total">0</div><div class="stat-label">Chats</div></div>
+        <div class="stat"><div class="stat-value" style="color:#25d366" id="stat-wa">0</div><div class="stat-label">WhatsApp</div></div>
+        <div class="stat"><div class="stat-value" style="color:#a855f7" id="stat-ig">0</div><div class="stat-label">Instagram</div></div>
+        <div class="stat"><div class="stat-value" style="color:#818cf8" id="stat-ai">0</div><div class="stat-label">IA</div></div>
+        <div class="stat"><div class="stat-value" style="color:#fb923c" id="stat-human">0</div><div class="stat-label">Humano</div></div>
+        <div class="stat"><div class="stat-value" style="color:#f43f5e" id="stat-unread">0</div><div class="stat-label">Sin leer</div></div>
     </div>
-    <button class="refresh-btn" onclick="cargarDatos()">🔄 Actualizar</button>
+    <div class="topbar-right">
+        <label>Operador:</label>
+        <select class="agent-select" id="agent-select">
+            <option value="Abril">Abril</option>
+            <option value="Fede">Fede</option>
+            <option value="Nico">Nico</option>
+        </select>
+    </div>
 </div>
 
-<div class="error-banner" id="error-banner"></div>
+<!-- ====== MAIN ====== -->
+<div class="main">
 
-<div class="container">
+    <!-- ====== SIDEBAR ====== -->
     <div class="sidebar">
-        <div class="search-bar">
-            <input type="text" id="search" placeholder="🔍 Buscar por número..." oninput="filtrar()">
+        <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="search-input" placeholder="Buscar conversación..." oninput="renderList()">
         </div>
-        <div class="conv-list" id="conv-list">
-            <div class="loading"><div class="spinner"></div> Cargando conversaciones...</div>
+        <div class="filters" id="filters">
+            <button class="filter-btn active" data-filter="todos" onclick="setFilter('todos')">Todos</button>
+            <button class="filter-btn" data-filter="wa" onclick="setFilter('wa')"><span class="channel-dot-sm wa"></span> WA</button>
+            <button class="filter-btn" data-filter="ig" onclick="setFilter('ig')"><span class="channel-dot-sm ig"></span> IG</button>
+            <button class="filter-btn" data-filter="ia" onclick="setFilter('ia')">🤖 IA</button>
+            <button class="filter-btn" data-filter="humano" onclick="setFilter('humano')">👤 Humano</button>
+            <button class="filter-btn" data-filter="sinleer" onclick="setFilter('sinleer')">Sin leer <span class="badge badge-red" id="filter-unread-badge">0</span></button>
         </div>
+        <div class="conv-list" id="conv-list"></div>
     </div>
+
+    <!-- ====== CHAT PANEL ====== -->
     <div class="chat-panel" id="chat-panel">
-        <div class="empty-state">
-            <div class="pig">🐷</div>
-            <p>Seleccioná una conversación para ver los mensajes</p>
+        <div class="empty-state" id="empty-state">
+            <div class="big-icon">🐷</div>
+            <div class="title">Seleccioná una conversación</div>
+            <div class="sub" id="empty-sub"></div>
         </div>
     </div>
 </div>
+
+<!-- ====== MODAL ====== -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="closeModal()">
+    <div class="modal" id="modal" onclick="event.stopPropagation()"></div>
+</div>
+
 
 <script>
-    let conversaciones = {};
-    let seleccionada = null;
+// ==================== CONFIG ====================
+const TEAM = ["Abril", "Fede", "Nico"];
+const isLocal = window.location.protocol === 'file:' || window.location.hostname === '';
+const REFRESH_INTERVAL = 15000; // 15 segundos
 
-    // Detectar si estamos en modo demo o producción
-    const isLocal = window.location.protocol === 'file:' || window.location.hostname === '';
-    const API_URL = isLocal ? null : '/api/conversaciones';
+let conversations = {};
+let currentFilter = "todos";
+let selectedId = null;
+let loading = true;
 
-    // DATOS DEMO para que veas cómo queda
-    const DEMO_DATA = {
-        "5491145678901": [
-            { role: "user", content: "Hola! cuanto sale la carrera?", timestamp: "2026-02-27T10:15:00Z" },
-            { role: "assistant", content: "¡Hola! 🐷 Qué bueno que te interesa Carrera Sucia! Los precios para adultos son:\n\n🏷️ EARLY BIRD (hasta 9 de marzo):\n- Sin remera: $54,000\n- Con remera: $68,000\n\n💰 NORMAL:\n- Sin remera: $65,000\n- Con remera: $79,000\n\nInscribite en www.carrerasucia.com.ar! Oink! 🐷", timestamp: "2026-02-27T10:15:05Z" },
-            { role: "user", content: "y para chicos?", timestamp: "2026-02-27T10:16:00Z" },
-            { role: "assistant", content: "Para los peques tenemos la categoría KIDS (5 a 12 años) 🧒\n\n🏷️ Early Bird: $32,000\n💰 Normal: $37,000\n\nEs un circuito de 1.5K con 6 obstáculos, ¡ideal para que se diviertan embarrándose! Las largadas KIDS son a las 10:30 y 13:30. Oink! 🐷", timestamp: "2026-02-27T10:16:08Z" }
-        ],
-        "5491167890123": [
-            { role: "user", content: "che se suspende si llueve?", timestamp: "2026-02-27T11:30:00Z" },
-            { role: "assistant", content: "¡Para nada! 🌧️ Carrera Sucia se hace LLUEVA o TRUENE. De hecho, con lluvia es más divertido porque hay más barro 💪😂 ¡Así que no hay excusas! La próxima es el 29 de marzo en Escobar. Oink! 🐷", timestamp: "2026-02-27T11:30:06Z" }
-        ],
-        "5491123456789": [
-            { role: "user", content: "hola donde es la carrera", timestamp: "2026-02-27T09:00:00Z" },
-            { role: "assistant", content: "¡Hola! 👋 La próxima Carrera Sucia es el 29 de marzo de 2026 en Escobar, Provincia de Buenos Aires. Es un circuito de 5K con más de 20 obstáculos llenos de barro. ¡Va a estar tremenda! Inscribite en www.carrerasucia.com.ar. Oink! 🐷", timestamp: "2026-02-27T09:00:07Z" },
-            { role: "user", content: "puedo ir con mi hijo de 7 años?", timestamp: "2026-02-27T09:01:00Z" },
-            { role: "assistant", content: "¡Sí! 🎉 Tu hijo de 7 puede correr en la categoría KIDS, que es para chicos de 5 a 12 años. Es un circuito de 1.5K con 6 obstáculos adaptados. Las largadas son a las 10:30 y 13:30. Cada niño debe ir acompañado por un adulto inscripto. Oink! 🐷", timestamp: "2026-02-27T09:01:10Z" },
-            { role: "user", content: "genial gracias!", timestamp: "2026-02-27T09:02:00Z" },
-            { role: "assistant", content: "¡De nada! 🐷 Cualquier otra duda acá estoy. ¡Los esperamos el 29 de marzo para embarrarse juntos! 💪🏃 Oink!", timestamp: "2026-02-27T09:02:05Z" }
-        ],
-        "5491198765432": [
-            { role: "user", content: "hay duchas?", timestamp: "2026-02-26T15:00:00Z" },
-            { role: "assistant", content: "¡Sí! 🚿 Hay duchas disponibles para que te saques el barro después de la carrera. También hay vestuarios y guardarropa para que dejes tus cosas seguras mientras corrés. Oink! 🐷", timestamp: "2026-02-26T15:00:04Z" }
+// ==================== API ====================
+async function fetchConversaciones() {
+    if (isLocal) {
+        // Modo demo para abrir local
+        conversations = DEMO_DATA;
+        return;
+    }
+    try {
+        const res = await fetch('/api/conversaciones');
+        if (!res.ok) throw new Error('Error ' + res.status);
+        conversations = await res.json();
+    } catch (err) {
+        console.error('Error cargando:', err);
+        // No sobreescribir si ya tenemos data
+        if (Object.keys(conversations).length === 0) {
+            conversations = DEMO_DATA;
+        }
+    }
+}
+
+async function apiSetMode(convId, mode, assignedTo) {
+    if (isLocal) {
+        // Modo demo
+        conversations[convId].mode = mode;
+        conversations[convId].assignedTo = mode === 'human' ? assignedTo : undefined;
+        return true;
+    }
+    try {
+        const res = await fetch('/api/modo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ convId, mode, assignedTo })
+        });
+        if (!res.ok) throw new Error('Error ' + res.status);
+        // Actualizar local
+        conversations[convId].mode = mode;
+        conversations[convId].assignedTo = mode === 'human' ? assignedTo : undefined;
+        return true;
+    } catch (err) {
+        console.error('Error cambiando modo:', err);
+        alert('Error al cambiar modo. Intentá de nuevo.');
+        return false;
+    }
+}
+
+async function apiSendMessage(convId, message, agent) {
+    if (isLocal) {
+        // Modo demo
+        conversations[convId].messages.push({
+            role: "human", content: message,
+            timestamp: new Date().toISOString(), agent
+        });
+        return true;
+    }
+    try {
+        const res = await fetch('/api/enviar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ convId, message, agent })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Error');
+        // Actualizar local
+        conversations[convId].messages.push({
+            role: "human", content: message,
+            timestamp: new Date().toISOString(), agent
+        });
+        if (!data.enviado) {
+            console.warn('Mensaje guardado pero no enviado por el canal');
+        }
+        return true;
+    } catch (err) {
+        console.error('Error enviando:', err);
+        alert('Error al enviar mensaje. Intentá de nuevo.');
+        return false;
+    }
+}
+
+// ==================== DEMO DATA (fallback) ====================
+const DEMO_DATA = {
+    "wa_5491145678901": {
+        channel: "wa", mode: "ai", name: "María García", phone: "5491145678901", unread: 0,
+        messages: [
+            { role: "user", content: "Hola! cuanto sale la carrera?", timestamp: "2026-03-03T10:15:00Z" },
+            { role: "assistant", content: "¡Hola! 🐷 Precios adultos: $65,000 individual. Inscribite en www.carrerasucia.com.ar! Oink!", timestamp: "2026-03-03T10:15:05Z" }
         ]
-    };
+    },
+    "wa_5491167890123": {
+        channel: "wa", mode: "ai", name: null, phone: "5491167890123", unread: 1,
+        messages: [
+            { role: "user", content: "che se suspende si llueve?", timestamp: "2026-03-03T11:30:00Z" },
+            { role: "assistant", content: "¡Para nada! Se corre llueva o truene. Oink! 🐷", timestamp: "2026-03-03T11:30:06Z" },
+            { role: "user", content: "jaja genial, somos 6 hay descuento?", timestamp: "2026-03-03T14:22:00Z" }
+        ]
+    }
+};
 
-    async function cargarDatos() {
-        try {
-            if (API_URL) {
-                const res = await fetch(API_URL);
-                if (!res.ok) throw new Error('Error ' + res.status);
-                conversaciones = await res.json();
-            } else {
-                // Modo demo
-                conversaciones = DEMO_DATA;
+// ==================== HELPERS ====================
+function formatPhone(phone) {
+    const c = (phone || "").replace(/\D/g, "");
+    if (c.startsWith("549") && c.length > 9) return `+54 9 ${c.slice(3,5)} ${c.slice(5,9)}-${c.slice(9)}`;
+    return phone || "";
+}
+
+function formatTime(ts) {
+    if (!ts) return "";
+    const d = new Date(ts);
+    const now = new Date();
+    const diffH = (now - d) / 36e5;
+    if (diffH < 24) return d.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+    if (diffH < 168) return d.toLocaleDateString("es-AR", { weekday: "short" });
+    return d.toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" });
+}
+
+function getInitials(id, conv) {
+    if (conv.name) return conv.name.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
+    if (conv.username) return conv.username.slice(0,2).toUpperCase();
+    if (conv.phone) return conv.phone.slice(-2);
+    return "??";
+}
+
+function getDisplayName(id, conv) {
+    if (conv.name) return conv.name;
+    if (conv.username) return "@" + conv.username;
+    if (conv.phone) return formatPhone(conv.phone);
+    return id;
+}
+
+function getSubline(conv) {
+    if (conv.channel === "ig" && conv.username) return "@" + conv.username;
+    if (conv.channel === "wa" && conv.phone) return formatPhone(conv.phone);
+    return "";
+}
+
+function getAgent() { return document.getElementById("agent-select").value; }
+
+function escapeHtml(text) {
+    return (text || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>");
+}
+
+// ==================== STATS ====================
+function updateStats() {
+    const all = Object.values(conversations);
+    const unread = all.reduce((a, c) => a + (c.unread || 0), 0);
+    document.getElementById("stat-total").textContent = all.length;
+    document.getElementById("stat-wa").textContent = all.filter(c => c.channel === "wa").length;
+    document.getElementById("stat-ig").textContent = all.filter(c => c.channel === "ig").length;
+    document.getElementById("stat-ai").textContent = all.filter(c => c.mode === "ai" || !c.mode).length;
+    document.getElementById("stat-human").textContent = all.filter(c => c.mode === "human").length;
+    document.getElementById("stat-unread").textContent = unread;
+    const badge = document.getElementById("filter-unread-badge");
+    badge.textContent = unread;
+    badge.classList.toggle("hidden", unread === 0);
+    const emptySub = document.getElementById("empty-sub");
+    if (emptySub) emptySub.textContent = `${all.length} conversaciones · ${unread} sin leer`;
+}
+
+// ==================== FILTER ====================
+function setFilter(f) {
+    currentFilter = f;
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.filter === f);
+    });
+    renderList();
+}
+
+// ==================== RENDER LIST ====================
+function renderList() {
+    const search = document.getElementById("search-input").value.toLowerCase();
+    const list = document.getElementById("conv-list");
+
+    const sorted = Object.entries(conversations)
+        .filter(([id, conv]) => {
+            if (search) {
+                const matchP = conv.phone?.includes(search);
+                const matchN = conv.name?.toLowerCase().includes(search);
+                const matchU = conv.username?.toLowerCase().includes(search);
+                const matchM = (conv.messages || []).some(m => m.content.toLowerCase().includes(search));
+                if (!matchP && !matchN && !matchU && !matchM) return false;
             }
-            renderLista();
-            actualizarStats();
-            document.getElementById('error-banner').style.display = 'none';
-        } catch (err) {
-            document.getElementById('error-banner').textContent = '⚠️ Error cargando datos: ' + err.message + ' — ¿El bot está corriendo?';
-            document.getElementById('error-banner').style.display = 'block';
-            // Cargar demo como fallback
-            conversaciones = DEMO_DATA;
-            renderLista();
-            actualizarStats();
-        }
-    }
-
-    function actualizarStats() {
-        const numConvos = Object.keys(conversaciones).length;
-        let numMsgs = 0;
-        Object.values(conversaciones).forEach(msgs => numMsgs += msgs.length);
-        document.getElementById('stat-convos').innerHTML = 'Conversaciones: <strong>' + numConvos + '</strong>';
-        document.getElementById('stat-msgs').innerHTML = 'Mensajes: <strong>' + numMsgs + '</strong>';
-    }
-
-    function formatPhone(phone) {
-        // Limpiar formato
-        const clean = phone.replace(/\D/g, '');
-        if (clean.startsWith('549')) {
-            return '+54 9 ' + clean.slice(3, 5) + ' ' + clean.slice(5, 9) + '-' + clean.slice(9);
-        }
-        return phone;
-    }
-
-    function getInitials(phone) {
-        const clean = phone.replace(/\D/g, '');
-        return clean.slice(-2);
-    }
-
-    function formatTime(ts) {
-        if (!ts) return '';
-        const d = new Date(ts);
-        const now = new Date();
-        const diffH = (now - d) / (1000 * 60 * 60);
-
-        if (diffH < 24) {
-            return d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
-        } else {
-            return d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' });
-        }
-    }
-
-    function renderLista() {
-        const list = document.getElementById('conv-list');
-        const searchVal = document.getElementById('search').value.toLowerCase();
-
-        // Ordenar por último mensaje (más reciente primero)
-        const sorted = Object.entries(conversaciones).sort((a, b) => {
-            const lastA = a[1][a[1].length - 1]?.timestamp || '';
-            const lastB = b[1][b[1].length - 1]?.timestamp || '';
+            const mode = conv.mode || "ai";
+            if (currentFilter === "wa") return conv.channel === "wa";
+            if (currentFilter === "ig") return conv.channel === "ig";
+            if (currentFilter === "ia") return mode === "ai";
+            if (currentFilter === "humano") return mode === "human";
+            if (currentFilter === "sinleer") return (conv.unread || 0) > 0;
+            return true;
+        })
+        .sort((a, b) => {
+            const msgsA = a[1].messages || [];
+            const msgsB = b[1].messages || [];
+            const lastA = msgsA[msgsA.length-1]?.timestamp || "";
+            const lastB = msgsB[msgsB.length-1]?.timestamp || "";
             return lastB.localeCompare(lastA);
         });
 
-        let html = '';
-        sorted.forEach(([phone, msgs]) => {
-            if (searchVal && !phone.includes(searchVal)) return;
+    let html = "";
+    sorted.forEach(([id, conv]) => {
+        const msgs = conv.messages || [];
+        const lastMsg = msgs[msgs.length - 1];
+        const isActive = id === selectedId;
+        const lastSender = lastMsg?.role === "user" ? "👤" : lastMsg?.role === "human" ? "💬" : "🐷";
+        const preview = lastMsg ? `${lastSender} ${lastMsg.content.substring(0,35)}...` : "";
+        const subline = getSubline(conv);
+        const channelClass = conv.channel || "wa";
+        const channelLabel = channelClass === "wa" ? "WA" : "IG";
+        const mode = conv.mode || "ai";
 
-            const lastMsg = msgs[msgs.length - 1];
-            const userMsgs = msgs.filter(m => m.role === 'user');
-            const preview = lastMsg ? (lastMsg.role === 'user' ? '👤 ' : '🐷 ') + lastMsg.content.substring(0, 50) + '...' : '';
-            const isActive = phone === seleccionada ? 'active' : '';
-
-            html += `
-                <div class="conv-item ${isActive}" onclick="selectConv('${phone}')">
-                    <div class="conv-avatar">${getInitials(phone)}</div>
+        html += `
+            <div class="conv-item ${isActive ? 'active' : ''}" onclick="selectConv('${id}')">
+                <div class="conv-row">
+                    <div class="conv-avatar ${mode}">
+                        ${getInitials(id, conv)}
+                        <div class="channel-dot ${channelClass}"></div>
+                        <div class="mode-dot ${mode}">${mode === "ai" ? "🤖" : "👤"}</div>
+                    </div>
                     <div class="conv-info">
-                        <div class="phone">${formatPhone(phone)}</div>
-                        <div class="preview">${preview}</div>
+                        <div class="conv-top">
+                            <div class="conv-name-row">
+                                <div class="conv-name">${getDisplayName(id, conv)}</div>
+                                <span class="conv-channel-tag ${channelClass}">${channelLabel}</span>
+                            </div>
+                            <div class="conv-time">${formatTime(lastMsg?.timestamp)}</div>
+                        </div>
+                        ${conv.name && subline ? `<div class="conv-phone">${subline}</div>` : ""}
+                        <div class="conv-bottom">
+                            <div class="conv-preview">${preview}</div>
+                            ${(conv.unread || 0) > 0 ? `<div class="conv-unread">${conv.unread}</div>` : ""}
+                        </div>
                     </div>
-                    <div class="conv-meta">
-                        <div class="time">${formatTime(lastMsg?.timestamp)}</div>
-                        <div class="msg-count">${msgs.length}</div>
-                    </div>
-                </div>
-            `;
-        });
-
-        if (!html) {
-            html = '<div class="empty-state"><p>No hay conversaciones</p></div>';
-        }
-
-        list.innerHTML = html;
-    }
-
-    function selectConv(phone) {
-        seleccionada = phone;
-        renderLista();
-        renderChat(phone);
-    }
-
-    function renderChat(phone) {
-        const panel = document.getElementById('chat-panel');
-        const msgs = conversaciones[phone] || [];
-        const userMsgs = msgs.filter(m => m.role === 'user').length;
-
-        let html = `
-            <div class="chat-header">
-                <div class="conv-avatar" style="width:36px;height:36px;font-size:14px;">${getInitials(phone)}</div>
-                <div>
-                    <div class="phone-big">${formatPhone(phone)}</div>
-                    <div class="msg-total">${msgs.length} mensajes · ${userMsgs} del cliente</div>
                 </div>
             </div>
-            <div class="chat-messages">
         `;
+    });
 
-        msgs.forEach(msg => {
-            const label = msg.role === 'user' ? '👤 Cliente' : '🐷 CERDÍN';
-            const cls = msg.role;
-            html += `
-                <div class="msg-bubble ${cls}">
-                    <div class="msg-label">${label}</div>
-                    ${msg.content.replace(/\n/g, '<br>')}
-                    <div class="msg-time">${formatTime(msg.timestamp)}</div>
-                </div>
-            `;
-        });
+    if (!html) html = '<div class="empty-state" style="padding:40px"><div class="sub">No hay conversaciones</div></div>';
+    list.innerHTML = html;
+}
 
-        html += '</div>';
-        panel.innerHTML = html;
+// ==================== SELECT CONV ====================
+function selectConv(id) {
+    selectedId = id;
+    if (conversations[id]) conversations[id].unread = 0;
+    updateStats();
+    renderList();
+    renderChat();
+}
 
-        // Scroll al final
-        const chatMsgs = panel.querySelector('.chat-messages');
-        if (chatMsgs) chatMsgs.scrollTop = chatMsgs.scrollHeight;
+// ==================== RENDER CHAT ====================
+function renderChat() {
+    const panel = document.getElementById("chat-panel");
+    if (!selectedId || !conversations[selectedId]) {
+        panel.innerHTML = `<div class="empty-state"><div class="big-icon">🐷</div><div class="title">Seleccioná una conversación</div></div>`;
+        return;
     }
 
-    function filtrar() { renderLista(); }
+    const conv = conversations[selectedId];
+    const msgs = conv.messages || [];
+    const mode = conv.mode || "ai";
+    const userCount = msgs.filter(m => m.role === "user").length;
+    const assignedText = conv.assignedTo ? ` · Asignado a ${conv.assignedTo}` : "";
+    const channelClass = conv.channel || "wa";
+    const channelName = channelClass === "wa" ? "WhatsApp" : "Instagram";
+    const channelLabel = channelClass === "wa" ? "WA" : "IG";
+    const subline = getSubline(conv);
 
-    // Auto-refresh cada 30 segundos
-    setInterval(cargarDatos, 30000);
+    let html = `
+        <div class="chat-header">
+            <div class="chat-header-left">
+                <div class="chat-header-avatar" style="background:${mode === 'ai' ? 'linear-gradient(135deg,#312e81,#4338ca)' : 'linear-gradient(135deg,#7c2d12,#c2410c)'}">
+                    ${getInitials(selectedId, conv)}
+                </div>
+                <div>
+                    <div class="chat-header-name">
+                        ${getDisplayName(selectedId, conv)}
+                        <span class="conv-channel-tag ${channelClass}">${channelLabel}</span>
+                    </div>
+                    <div class="chat-header-meta">
+                        ${subline ? subline + " · " : ""}${msgs.length} mensajes · ${userCount} del cliente${assignedText}
+                    </div>
+                </div>
+            </div>
+            <div class="chat-header-right">
+                <span class="mode-label">${mode === "ai" ? "🤖 IA responde" : `👤 ${conv.assignedTo || "Humano"} responde`}</span>
+                <button class="mode-toggle ${mode}" onclick="openModeModal('${selectedId}')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+                    ${mode === "ai" ? "Tomar control" : "Devolver a IA"}
+                </button>
+            </div>
+        </div>
 
-    // Cargar al inicio
-    cargarDatos();
+        <div class="mode-banner ${mode}">
+            ${mode === "ai"
+                ? `🤖 CERDÍN está respondiendo automáticamente · Canal: ${channelName}`
+                : `👤 <strong>${conv.assignedTo}</strong> tiene el control · Canal: ${channelName} · La IA no responderá`}
+        </div>
+
+        <div class="chat-messages">
+    `;
+
+    msgs.forEach(msg => {
+        const isUser = msg.role === "user";
+        const isHuman = msg.role === "human";
+        const rowClass = isUser ? "from-user" : isHuman ? "from-human" : "from-bot";
+        const bubbleClass = isUser ? "user" : isHuman ? "human-msg" : "bot";
+        const senderClass = isUser ? "user-sender" : isHuman ? "human-sender" : "bot-sender";
+        const senderLabel = isUser ? "👤 Cliente" : isHuman ? `👤 ${msg.agent || "Agente"}` : "🤖 CERDÍN";
+
+        html += `
+            <div class="msg-row ${rowClass}">
+                <div class="msg-bubble ${bubbleClass}">
+                    <div class="msg-sender ${senderClass}">${senderLabel}</div>
+                    <div class="msg-content">${escapeHtml(msg.content)}</div>
+                    <div class="msg-time">${formatTime(msg.timestamp)}</div>
+                </div>
+            </div>
+        `;
+    });
+
+    html += '</div>';
+
+    if (mode === "human") {
+        const agent = getAgent();
+        html += `
+            <div class="chat-input">
+                <div class="chat-input-row">
+                    <textarea id="msg-input" placeholder="Escribir como ${agent} vía ${channelName}..." rows="1" onkeydown="handleKey(event)"></textarea>
+                    <button class="send-btn inactive" id="send-btn" onclick="sendMsg()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    </button>
+                </div>
+                <div class="chat-input-hint">Enviando como <strong>${agent}</strong> por ${channelName} · Enter para enviar</div>
+            </div>
+        `;
+    } else {
+        html += `
+            <div class="ai-footer">
+                🤖 La IA está respondiendo por ${channelName} · <button onclick="openModeModal('${selectedId}')">Tomar control</button> para escribir manualmente
+            </div>
+        `;
+    }
+
+    panel.innerHTML = html;
+
+    const msgContainer = panel.querySelector(".chat-messages");
+    if (msgContainer) msgContainer.scrollTop = msgContainer.scrollHeight;
+
+    const input = document.getElementById("msg-input");
+    if (input) {
+        input.addEventListener("input", () => {
+            document.getElementById("send-btn").className = input.value.trim() ? "send-btn active" : "send-btn inactive";
+        });
+        input.focus();
+    }
+}
+
+// ==================== SEND MESSAGE ====================
+function handleKey(e) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+}
+
+async function sendMsg() {
+    const input = document.getElementById("msg-input");
+    if (!input || !input.value.trim() || !selectedId) return;
+
+    const message = input.value.trim();
+    const agent = getAgent();
+    input.value = "";
+    input.disabled = true;
+
+    const ok = await apiSendMessage(selectedId, message, agent);
+
+    input.disabled = false;
+    if (ok) {
+        renderChat();
+        renderList();
+    }
+    input.focus();
+}
+
+// ==================== MODE MODAL ====================
+function openModeModal(id) {
+    const conv = conversations[id];
+    if (!conv) return;
+    const mode = conv.mode || "ai";
+    const modal = document.getElementById("modal");
+    const overlay = document.getElementById("modal-overlay");
+
+    if (mode === "ai") {
+        modal.innerHTML = `
+            <div class="modal-icon">👤</div>
+            <div class="modal-title">Tomar control de la conversación</div>
+            <div class="modal-desc">La IA dejará de responder. Vas a poder escribir manualmente desde el dashboard.</div>
+            <div class="modal-label">¿Quién toma el control?</div>
+            <div class="modal-agents">
+                ${TEAM.map(m => `<button class="modal-agent-btn" onclick="confirmMode('${id}','human','${m}')">${m}</button>`).join("")}
+            </div>
+        `;
+    } else {
+        modal.innerHTML = `
+            <div class="modal-icon">🤖</div>
+            <div class="modal-title">Devolver a la IA</div>
+            <div class="modal-desc">CERDÍN volverá a responder automáticamente esta conversación.</div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeModal()">Cancelar</button>
+                <button class="modal-btn confirm" onclick="confirmMode('${id}','ai')">Sí, devolver a IA</button>
+            </div>
+        `;
+    }
+    overlay.classList.remove("hidden");
+}
+
+async function confirmMode(id, mode, agent) {
+    closeModal();
+    const ok = await apiSetMode(id, mode, agent);
+    if (ok) {
+        if (agent) document.getElementById("agent-select").value = agent;
+        updateStats();
+        renderList();
+        renderChat();
+    }
+}
+
+function closeModal() {
+    document.getElementById("modal-overlay").classList.add("hidden");
+}
+
+// ==================== REFRESH LOOP ====================
+async function refresh() {
+    await fetchConversaciones();
+    updateStats();
+    renderList();
+    if (selectedId) renderChat();
+    loading = false;
+}
+
+// Init
+refresh();
+setInterval(refresh, REFRESH_INTERVAL);
 </script>
 
 </body>
